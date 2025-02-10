@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        /* Body and Background */
+        body {
+            font-family: 'Poppins', sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            overflow: hidden;
+            position: relative;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dark-mode {
+            background: linear-gradient(135deg, #2c2f38, #1e1e2f);
+            color: #fff;
+        }
+
+        /* Particle Background */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+
+        /* Header */
+        .header {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .signature {
+            font-size: 30px;
+            font-weight: bold;
+            color: #fff;
+            font-family: 'Dancing Script', cursive;
+            margin-right: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .dark-mode-toggle {
+            font-size: 30px;
+            cursor: pointer;
+            color: #fff;
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            color: #ffcc00;
+        }
+
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            animation: fadeIn 0.5s ease-out;
+            padding-bottom: 70px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .message {
+            padding: 15px 20px;
+            border-radius: 30px;
+            max-width: 75%;
+            word-wrap: break-word;
+            font-size: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            animation: slideIn 0.4s ease-in-out forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .message:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .user {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            align-self: flex-end;
+            border-radius: 30px 30px 0 30px;
+        }
+
+        .bot {
+            background: #ffffff;
+            color: black;
+            align-self: flex-start;
+            border-radius: 30px 30px 30px 0;
+        }
+
+        .dark-mode .bot {
+            background: #333;
+            color: white;
+        }
+
+        /* Chat Input */
+        .chat-input {
+            display: flex;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s ease;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1;
+        }
+
+        .dark-mode .chat-input {
+            background: rgba(51, 51, 51, 0.9);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+            background: #f0f0f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .dark-mode .chat-input input {
+            background: #444;
+            color: white;
+        }
+
+        .chat-input button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            margin-left: 12px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-size: 16px;
+        }
+
+        .chat-input button:hover {
+            background: #ffcc00;
+            color: black;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 600px) {
+            .signature {
+                font-size: 24px;
+            }
+
+            .chat-input {
+                padding: 12px;
+            }
+
+            .chat-input input {
+                padding: 12px;
+            }
+
+            .chat-input button {
+                padding: 12px 24px;
+            }
+
+            .message {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body onload="showDefaultMessage()">
+    <!-- Particle Background -->
+    <div id="particles-js"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="signature">Ibrahim</div>
+        <i class="fas fa-moon dark-mode-toggle" onclick="toggleDarkMode()"></i>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="chat-messages" id="chat-messages">
+        <div class="message bot">👋 Hello, I am Ibrahim. How can I assist you today?</div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="chat-input">
+        <input type="text" id="user-input" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <!-- Particles.js Library -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Initialize Particles.js
+        particlesJS.load('particles-js', 'particles.json', function() {
+            console.log('Particles.js loaded!');
+        });
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        // Send Message Function
+        async function sendMessage() {
+            let inputField = document.getElementById("user-input");
+            let message = inputField.value.trim();
+            if (message === "") return;
+
+            let chatMessages = document.getElementById("chat-messages");
+            let userMessage = document.createElement("div");
+            userMessage.classList.add("message", "user");
+            userMessage.innerText = message;
+            chatMessages.appendChild(userMessage);
+            inputField.value = "";
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            let botMessage = document.createElement("div");
+            botMessage.classList.add("message", "bot");
+            botMessage.innerHTML = "⌛ Generating response...";
+            chatMessages.appendChild(botMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            let response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message })
+            });
+
+            let data = await response.json();
+            botMessage.innerHTML = "🤖 " + data.reply;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+</body>
+</html>
